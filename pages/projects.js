@@ -1,7 +1,9 @@
 import Head from "next/head";
 import Layout from "../components/layout";
+import { DATABASE_ID, TOKEN } from "../config/index";
 
-export default function Projects() {
+export default function Projects({ projects }) {
+  console.log(projects);
   return (
     <Layout>
       <Head>
@@ -10,7 +12,46 @@ export default function Projects() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <h1>프로젝트</h1>
+      <h1>총 프로젝트 : {projects.length}</h1>
+
+      {projects.map((project, index) => (
+        <h1 key={index}>{project.properties["이름"].title[0]?.plain_text}</h1>
+      ))}
     </Layout>
   );
+}
+
+// 빌드 타임에 호출
+export async function getStaticProps() {
+  const options = {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "Notion-Version": "2022-02-22",
+      "content-type": "application/json",
+      Authorization: `Bearer ${TOKEN}`,
+    },
+    body: JSON.stringify({
+      page_size: 100,
+    }),
+  };
+
+  const responce = await fetch(
+    `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
+    options
+  );
+
+  // 파싱 과정
+  // const projects = await responce.json();
+  // const projectsInfos = projects.results.map(
+  //   (project) => project.properties["이름"].title[0]
+  // );
+  // const projectNames = projectsInfos.map((info) => info?.plain_text);
+
+  const projects = await responce.json().then((res) => res.results);
+
+  return {
+    props: { projects }, // will be passed to the page component as props
+    revalidate: 1,
+  };
 }
