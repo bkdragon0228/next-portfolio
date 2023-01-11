@@ -11,7 +11,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <h1>홈 입니다.</h1>
+      <h1 className="text-3xl font-bold underline">Hello world!</h1>
     </Layout>
   );
 }
